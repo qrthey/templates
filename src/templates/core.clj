@@ -39,6 +39,23 @@
     :default template))
 
 (defn template->values
+  "Takes a template that can be any clojure datastructure, a mach which
+  can be a string or a regex, and a sequence of replacement items.
+  Returns per replacement item a value that is an exact copy of the
+  template, except for strings, keywords and pottentially symbols.
+  
+  For strings, clojure.string/replace is used to create a copy with
+  the match replaced in the resulting strig with the string value of
+  the current replacement item.
+
+  For keywords, both the namespace and the name are treated as strings
+  and then recomposed in a new keyword. Non namespaced keywords are
+  supported as well.
+
+  For symbols, a check is made to see if the name of the symbol
+  exactly matches the match, and if so, it gets substituted by the
+  replacement item, otherwise the original symbol is kept in the
+  resulting value."
   [template match replacements]
   (map #(fill-out-template template [match %])
        replacements))

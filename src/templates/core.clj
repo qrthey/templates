@@ -3,7 +3,7 @@
 
 (defn- fill-out-string
   [s [match replacement]]
-  (clojure.string/replace s match replacement))
+  (clojure.string/replace s match (str replacement)))
 
 (defn- fill-out-keyword
   [kw replacement-task]
@@ -32,6 +32,9 @@
 
     (keyword? template)
     (fill-out-keyword template replacement-task)
+
+    (and (symbol? template) (= (name template) (first replacement-task)))
+    (second replacement-task)
     
     :default template))
 

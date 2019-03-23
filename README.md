@@ -8,8 +8,8 @@ Produces values by filling out templates.
 (template->values 
   {:nested [{:data :structure-__XXX__-here}
             {:with :more [:nested {:in-string "string-__XXX__-key"}] :v}]}
-            "__XXX__"
-            ["reinhardt""ionesco" "jung"])
+  "__XXX__"
+  ["reinhardt""ionesco" "jung"])
 
 ;; ==>
 

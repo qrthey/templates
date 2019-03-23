@@ -4,13 +4,6 @@ Produces values by filling out templates.
 
 ## Usage
 
-`template->values` takes a template, a regex or string to find, and a
-replacement string pattern. 
-
-Returns a lazy sequence of values by filling out the template,
-replacing the searched regex/string with the replacement string
-patter.
-
 ```clojure
 (template->values 
   {:nested [{:data :structure-__XXX__-here}
@@ -32,4 +25,4 @@ patter.
 Copyright © 2019 Kurt Heyrman
 
 This program and the accompanying materials are made available under
-the terms of the MIT license included [here](./LICENSE).
+the terms of the [included license](./LICENSE).

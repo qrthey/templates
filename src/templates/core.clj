@@ -2,12 +2,16 @@
   (:require [clojure.string]))
 
 (defn- fill-out-string
-  [s [match replacement]]
-  (clojure.string/replace s match (str replacement)))
+  [s replacements]
+  (reduce
+   (fn [s [match replacement]]
+     (clojure.string/replace s match (str replacement)))
+   s
+   replacements))
 
 (defn- fill-out-keyword
-  [kw replacement-task]
-  (let [filler #(fill-out-string % replacement-task)
+  [kw replacements]
+  (let [filler #(fill-out-string % replacements)
         nspace (namespace kw)
         n (name kw)]
     (if nspace
@@ -15,47 +19,52 @@
       (keyword (filler n)))))
 
 (defn- fill-out-template
-  [template replacement-task]
+  [template replacements]
   (cond
     (sequential? template)
-    (vec (map #(fill-out-template % replacement-task) template))
+    (vec (map #(fill-out-template % replacements) template))
 
     (associative? template)
     (into {}
           (map (fn [[k v]]
-                 [(fill-out-template k replacement-task)
-                  (fill-out-template v replacement-task)])
+                 [(fill-out-template k replacements)
+                  (fill-out-template v replacements)])
                template))
 
     (string? template)
-    (fill-out-string template replacement-task)
+    (fill-out-string template replacements)
 
     (keyword? template)
-    (fill-out-keyword template replacement-task)
+    (fill-out-keyword template replacements)
 
-    (and (symbol? template) (= (name template) (first replacement-task)))
-    (second replacement-task)
+    (and (symbol? template) (contains? replacements (name template)))
+    (get replacements (name template))
     
     :default template))
 
 (defn template->values
-  "Takes a template that can be any clojure datastructure, a mach which
-  can be a string or a regex, and a sequence of replacement items.
-  Returns per replacement item a value that is an exact copy of the
-  template, except for strings, keywords and pottentially symbols.
-  
-  For strings, clojure.string/replace is used to create a copy with
-  the match replaced in the resulting strig with the string value of
-  the current replacement item.
+  "Takes a template that can be any clojure datastructure and a sequence
+  of replacement maps. A replacement map describes replacement values
+  to create a value from the template. Keys in a replacement map must
+  be strings.
 
+  Returns per replacement map a value that is an exact copy of the
+  template, except for strings, keywords and pottentially symbols.
+
+  Strings are transformed with clojure.string/replace for each
+  key/value pair in a replacement map. The key in the pair is used as
+  the match value while the string representation of the value is used
+  as the replacement.
+  
   For keywords, both the namespace and the name are treated as strings
   and then recomposed in a new keyword. Non namespaced keywords are
   supported as well.
 
   For symbols, a check is made to see if the name of the symbol
-  exactly matches the match, and if so, it gets substituted by the
-  replacement item, otherwise the original symbol is kept in the
-  resulting value."
-  [template match replacements]
-  (map #(fill-out-template template [match %])
+  exactly matches a key in the replacement map, and if so, it gets
+  substituted by the value for that key, otherwise the original symbol
+  is kept in the resulting value."
+  [template replacements]
+  (map #(fill-out-template template %)
        replacements))
+

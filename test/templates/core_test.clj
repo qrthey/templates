@@ -3,37 +3,42 @@
             [templates.core :refer :all]))
 
 (deftest template->values-test
-  (testing "Strings and keywords are handled for matches."
-    (is (= '({:nested [{:data :structure-reinhardt-here}
-                       {:with :more, [:nested {:in-string "string-reinhardt-key"}] :v}]}
-             {:nested [{:data :structure-ionesco-here}
-                       {:with :more, [:nested {:in-string "string-ionesco-key"}] :v}]}
-             {:nested [{:data :structure-jung-here}
-                       {:with :more, [:nested {:in-string "string-jung-key"}] :v}]})
+  (testing "Strings, keywords and symbols are handled correctly."
+    (is (= '([:a :deeply
+              {:nested [:data-structure
+                        {:id 1,
+                         :status review,
+                         :prop-age "val recorded = 20",
+                         :verified? :yeah}]}]
+             [:a :deeply
+              {:nested [:data-structure
+                        {:id 2,
+                         :status review,
+                         :prop-phone "val recorded = 20 30 40 50",
+                         :verified? :nope}]}]
+             [:a :deeply
+              {:nested [:data-structure
+                        {:id 3,
+                         :status review,
+                         :prop-last-gps-position "val recorded = 298EW9879DDK",
+                         :verified? :nope}]}])
 
            (template->values 
-            {:nested [{:data :structure-__XXX__-here}
-                      {:with :more [:nested {:in-string "string-__XXX__-key"}] :v}]}
-            "__XXX__"
-            ["reinhardt" "ionesco" "jung"]))))
-  (testing "Symbols matching exactly are handled."
-    (is (= '({:nested [{:data :structure-120-here}
-                       {:with :more,
-                        [= :factor 120] :t,
-                        [:nested {:in-string "string-120-key"}] :v}]}
-             {:nested [{:data :structure-130-here}
-                       {:with :more,
-                        [= :factor 130] :t,
-                        [:nested {:in-string "string-130-key"}] :v}]}
-             {:nested [{:data :structure-140-here}
-                       {:with :more,
-                        [= :factor 140] :t,
-                        [:nested {:in-string "string-140-key"}] :v}]})
-
-           (template->values 
-            {:nested [{:data :structure-__XXX__-here}
-                      {:with :more
-                       ['= :factor '__XXX__] :t
-                       [:nested {:in-string "string-__XXX__-key"}] :v}]}
-            "__XXX__"
-            [120 130 140])))))
+            [:a :deeply
+             {:nested [:data-structure
+                       {:id '<<ID>>
+                        :status 'review
+                        :prop-<<PROP-NAME>> "val recorded = <<PROP-VAL>>"
+                        :verified? '<<IS-VERIFIED?>>}]}]
+            [{"<<ID>>" 1
+              "<<PROP-NAME>>" "age"
+              "<<PROP-VAL>>" 20
+              "<<IS-VERIFIED?>>" :yeah}
+             {"<<ID>>" 2
+              "<<PROP-NAME>>" "phone"
+              "<<PROP-VAL>>" "20 30 40 50"
+              "<<IS-VERIFIED?>>" :nope}
+             {"<<ID>>" 3
+              "<<PROP-NAME>>" "last-gps-position"
+              "<<PROP-VAL>>" "298EW9879DDK"
+              "<<IS-VERIFIED?>>" :nope}])))))

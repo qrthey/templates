@@ -4,22 +4,8 @@ Produces values by filling out templates.
 
 ## Usage
 
-```clojure
-(template->values 
-  {:nested [{:data :structure-__XXX__-here}
-            {:with :more [:nested {:in-string "string-__XXX__-key"}] :v}]}
-  "__XXX__"
-  ["reinhardt""ionesco" "jung"])
+See the [unit test](./test/templates/core_test.clj).
 
-;; ==>
-
-({:nested [{:data :structure-reinhardt-here}
-           {:with :more, [:nested {:in-string "string-reinhardt-key"}] :v}]}
- {:nested [{:data :structure-ionesco-here}
-           {:with :more, [:nested {:in-string "string-ionesco-key"}] :v}]}
- {:nested [{:data :structure-jung-here}
-           {:with :more, [:nested {:in-string "string-jung-key"}] :v}]})
-```
 ## License
 
 Copyright © 2019 Kurt Heyrman
